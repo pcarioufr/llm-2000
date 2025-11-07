@@ -1,0 +1,21 @@
+# Custom Datadog Agent Check Configuration - Hello World
+
+init_config:
+  # Global configuration options for the check
+  # (empty for this simple example)
+
+instances:
+  # Each instance represents a separate run of the check
+  # You can have multiple instances with different configurations
+  
+  - min_collection_interval: 300  # Run the check every 5min (default is 15)
+    tags:
+      - app:llm-2000
+      - check_type:hello_world
+    
+  # Example of a second instance (commented out)
+  # - min_collection_interval: 120
+  #   tags:
+  #     - app:llm-2000
+  #     - check_type:hello_world_slow
+

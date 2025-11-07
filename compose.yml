@@ -26,7 +26,6 @@ services:
     container_name: flask
     build: flask/build/.
     env_file:
-      - .env/datadog.env
       - .env/rum.env
       - .env/ollama.env
     volumes:
@@ -96,6 +95,9 @@ services:
       - /proc/:/host/proc/:ro
       - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
       - ./datadog/run:/opt/datadog-agent/run:rw
+      # Custom checks
+      - ./datadog/checks.d:/etc/datadog-agent/checks.d:ro
+      - ./datadog/conf.d:/etc/datadog-agent/conf.d:ro
     labels:
       com.datadoghq.ad.logs: '[{"source": "datadog-agent", "service": "datadog"}]'
 
