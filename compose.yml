@@ -77,7 +77,7 @@ services:
 
   datadog:
     container_name: datadog
-    image: "datadog/agent:7.41.0"
+    image: "datadog/agent:7.72.2"
     env_file:
       - .env/datadog.env
     environment:
@@ -88,6 +88,9 @@ services:
       - DD_LOGS_CONFIG_AUTO_MULTI_LINE_DETECTION=true
 #      - DD_AC_EXCLUDE=name:datadog
       - DD_LOG_LEVEL=error
+      # Send data to OP Worker instead of directly to Datadog
+      # - DD_OBSERVABILITY_PIPELINES_WORKER_LOGS_ENABLED=true
+      # - DD_OBSERVABILITY_PIPELINES_WORKER_LOGS_URL="http://datadog-op-worker:8282"
     expose:
       - 8126
     volumes:
@@ -100,6 +103,23 @@ services:
       - ./datadog/conf.d:/etc/datadog-agent/conf.d:ro
     labels:
       com.datadoghq.ad.logs: '[{"source": "datadog-agent", "service": "datadog"}]'
+  #   depends_on:
+  #     - datadog-op-worker
+
+  # datadog-op-worker:
+  #   container_name: datadog-op-worker
+  #   image: datadog/observability-pipelines-worker:latest
+  #   env_file:
+  #     - .env/datadog.env
+  #     - .env/datadog-op-worker.env
+  #   environment:
+  #     - DD_OP_SOURCE_DATADOG_AGENT_ADDRESS=0.0.0.0:8282
+  #   expose:
+  #     - 8282 # Logs
+  #   labels:
+  #     com.datadoghq.ad.logs: '[{"source": "datadog-op-worker", "service": "datadog-op-worker"}]'
+  #   restart: unless-stopped
+  #   command: run
 
 
   synthetics:
@@ -107,10 +127,10 @@ services:
     image: "datadog/synthetics-private-location-worker"
     platform: linux/amd64 # no docker image for arm64 yet
     env_file:
-      - .env/synthetics.env
+      - .env/datadog-synthetics-worker.env
       - .env/datadog.env
     labels:
-      com.datadoghq.ad.logs: '[{"source": "synthetics", "service": "synthetics"}]'
+      com.datadoghq.ad.logs: '[{"source": "datadog-synthetics-worker", "service": "datadog-synthetics-worker"}]'
 
 
 volumes:

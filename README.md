@@ -43,17 +43,19 @@ Apply complete! Resources: 8 added, 0 changed, 0 destroyed.
     - **flask** handles cookie-based authentication, web page template rendering, and chat functionality with an ollama integration.
     - **redis** stores chat history for each user.
     - **datadog** is the datadog agent.
+    - **datadog-op-worker** is the Observability Pipelines Worker that sits between the Datadog agent and Datadog Cloud, allowing you to process, transform, and route telemetry data.
     - **synthetics** is the private location that runs synthetic tests.
 
 
 ```bash
 $ docker compose up   
-[+] Running 5/5
- ✔ Container nginx        Started    0.3s 
- ✔ Container datadog      Started    0.3s 
- ✔ Container redis        Started    0.3s
- ✔ Container synthetics   Started    0.3s
- ✔ Container flask        Started    0.3s
+[+] Running 6/6
+ ✔ Container nginx                       Started    0.3s 
+ ✔ Container datadog-op-worker           Started    0.3s 
+ ✔ Container datadog                     Started    0.3s 
+ ✔ Container redis                       Started    0.3s
+ ✔ Container datadog-synthetics-worker   Started    0.3s
+ ✔ Container flask                       Started    0.3s
 ```
 
 

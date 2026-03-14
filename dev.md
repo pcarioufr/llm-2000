@@ -139,6 +139,135 @@ The service now includes comprehensive input validation:
 - **Consistent Validation**: Same validation rules applied in both `create()` and `set_config()` methods
 - **Prompt Handling**: Empty prompts are allowed (no system prompt scenario)
 
+## Observability Pipelines Worker
+
+The Observability Pipelines Worker sits between the Datadog Agent and Datadog Cloud, providing a processing layer for telemetry data before it reaches Datadog.
+
+### Architecture
+
+```
+Application Services
+    ↓ (metrics, logs, traces)
+Datadog Agent
+    ↓ (port 8282, 10514, 8126)
+OP Worker (datadog-op-worker)
+    ↓ (processes, transforms, routes)
+Datadog Cloud
+```
+
+### Configuration Management
+
+The OP Worker uses **Remote Configuration Mode** with Terraform:
+
+- **Source of Truth**: `terraform/conf/observability-pipeline.tf`
+- **Terraform Resource**: `datadog_observability_pipeline` ([docs](https://registry.terraform.io/providers/DataDog/datadog/latest/docs/resources/observability_pipeline))
+- **Configuration Storage**: Pipeline config is stored in Datadog and fetched by the worker
+- **Pipeline ID**: Created by Terraform and exported to `.env/datadog-op-worker.env`
+- **No Local Files**: Worker fetches configuration from Datadog (no pipeline.yaml needed)
+
+### Pipeline Configuration
+
+The pipeline configuration is defined in native Terraform HCL and stored in Datadog:
+
+```terraform
+resource "datadog_observability_pipeline" "llm_2000" {
+  name = "LLM-2000 Observability Pipeline"
+
+  config {
+    # Sources: Receive data from Datadog Agent
+    sources {
+      datadog_agent {
+        id = "datadog-agent-source"
+      }
+    }
+
+    # Destinations: Forward to Datadog
+    destinations {
+      datadog_logs {
+        id     = "datadog-logs-destination"
+        inputs = ["datadog-agent-source"]
+      }
+    }
+  }
+}
+```
+
+This creates a simple pass-through pipeline with no processors.
+
+### Ports
+
+- **8282**: Receives metrics from Datadog Agent
+- **10514**: Receives logs from Datadog Agent
+- **8126**: Receives APM traces from Datadog Agent
+
+### Agent Configuration
+
+The Datadog Agent is configured to send all telemetry to the OP Worker instead of directly to Datadog:
+
+```yaml
+environment:
+  - DD_DD_URL=http://datadog-op-worker:8282
+  - DD_LOGS_CONFIG_LOGS_DD_URL=http://datadog-op-worker:10514
+  - DD_APM_DD_URL=http://datadog-op-worker:8126
+```
+
+### Deployment Workflow
+
+1. **Update Configuration**: Edit `terraform/conf/observability-pipeline.tf`
+2. **Apply Terraform**: Run `./terraform.sh apply`
+   - Creates/updates pipeline in Datadog via API
+   - Updates `.env/datadog-op-worker.env` with pipeline ID and enables remote configuration
+3. **Restart Container**: `docker-compose restart datadog-op-worker`
+   - Worker fetches latest configuration from Datadog automatically
+
+### Use Cases
+
+The OP Worker enables several important capabilities:
+
+- **Data Transformation**: Enrich, redact, or modify telemetry before sending to Datadog
+- **Sampling**: Reduce data volume by sampling high-volume metrics or logs
+- **Multi-Destination Routing**: Send data to Datadog and other destinations (e.g., S3, Kafka)
+- **Data Privacy**: Remove sensitive information before it leaves your infrastructure
+- **Cost Optimization**: Filter or aggregate data to reduce ingestion costs
+
+### Example: Adding a Processor
+
+To add data transformation, add a `processors` block in `terraform/conf/observability-pipeline.tf`:
+
+```terraform
+resource "datadog_observability_pipeline" "llm_2000" {
+  name = "LLM-2000 Observability Pipeline"
+
+  config {
+    sources {
+      datadog_agent {
+        id = "datadog-agent-source"
+      }
+    }
+
+    # Add processors for data transformation
+    processors {
+      filter {
+        id      = "filter-nginx"
+        include = "service:nginx"
+        inputs  = ["datadog-agent-source"]
+      }
+    }
+
+    destinations {
+      datadog_logs {
+        id     = "datadog-logs-destination"
+        inputs = ["filter-nginx"]  # Use filtered data
+      }
+    }
+  }
+}
+```
+
+Then apply: `./terraform.sh apply && docker-compose restart datadog-op-worker`
+
+The worker will automatically fetch the updated configuration from Datadog.
+
 ## Routes
 
 ### Chat Routes (`/app/routes/chat.py`)

@@ -49,3 +49,9 @@ output "rum_client_token" {
   value       = datadog_rum_application.llm_2000.client_token
   sensitive   = true
 }
+
+output "op_pipeline_id" {
+  description = "The ID of the Observability Pipelines Worker pipeline"
+  value       = datadog_observability_pipeline.llm_2000.id
+  sensitive   = false
+}
