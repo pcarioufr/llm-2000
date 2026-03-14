@@ -73,6 +73,7 @@ Use the name "LLM-2000" consistently in all code, documentation, and UI elements
     - Worker fetches configuration from Datadog using DD_OP_PIPELINE_ID
     - Receives metrics (port 8282), logs (port 10514), and traces (port 8126) from Agent
     - Forwards to Datadog Cloud with optional transformations
+    - Activation requires setting `DD_OBSERVABILITY_PIPELINES_WORKER_LOGS_ENABLED=true` in `.env/datadog.env`
 
 ## Terraform Infrastructure
 - Location: terraform/conf/

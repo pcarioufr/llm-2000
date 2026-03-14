@@ -43,7 +43,7 @@ Apply complete! Resources: 8 added, 0 changed, 0 destroyed.
     - **flask** handles cookie-based authentication, web page template rendering, and chat functionality with an ollama integration.
     - **redis** stores chat history for each user.
     - **datadog** is the datadog agent.
-    - **datadog-op-worker** is the Observability Pipelines Worker that sits between the Datadog agent and Datadog Cloud, allowing you to process, transform, and route telemetry data.
+    - **datadog-op-worker** is the Observability Pipelines Worker that sits between the Datadog agent and Datadog Cloud, allowing you to process, transform, and route telemetry data. To activate it, set `DD_OBSERVABILITY_PIPELINES_WORKER_LOGS_ENABLED=true` in [`.env/datadog.env`](.env/datadog.env).
     - **synthetics** is the private location that runs synthetic tests.
 
 
