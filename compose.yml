@@ -89,8 +89,7 @@ services:
 #      - DD_AC_EXCLUDE=name:datadog
       - DD_LOG_LEVEL=error
       # Send data to OP Worker instead of directly to Datadog
-      - DD_OBSERVABILITY_PIPELINES_WORKER_LOGS_ENABLED=false
-      - DD_OBSERVABILITY_PIPELINES_WORKER_LOGS_URL="http://datadog-op-worker:8282"
+      - DD_OBSERVABILITY_PIPELINES_WORKER_LOGS_URL=http://datadog-op-worker:8282
     expose:
       - 8126
     volumes:
