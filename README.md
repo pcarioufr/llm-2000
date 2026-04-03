@@ -21,10 +21,12 @@ A webapp chat interface for Ollama LLM, whose primary intent is to Dogfood Datad
     - Get an [API key](https://app.datadoghq.com/organization-settings/api-keys), an [APP key](https://app.datadoghq.com/organization-settings/application-keys), and update `DD_API_KEY`, `DD_APP_KEY` accordingly.
     - Update the `NOTIF_EMAIL` with an email where to send datadog notifications (you can use the email you used for your Datadog Account).
 
-4. Run `./terraform.sh init` and then `./terraform.sh apply` from a terminal at the root of the `llm-2000` folder, to create all Datadog resources and update environment variables in the [.env/](.env) folder with a bunch of new IDs and secrets: 
+4. Run `./terraform.sh init` and then `./terraform.sh apply` from a terminal at the root of the `llm-2000` folder, to create all Datadog resources and update environment variables in the [.env/](.env) folder with a bunch of new IDs and secrets:
     - a RUM Application and a Client Token
     - a Synthetics Private Location
     - Dashboards, Monitors, etc.
+
+    > **Note:** On the first apply from a clean state, you need to create the Synthetics Private Location first, then apply the rest. This is due to a [known limitation](https://github.com/DataDog/terraform-provider-datadog/issues) in the Datadog Terraform provider where synthetics test `locations` validation runs at plan time and cannot resolve computed private location IDs that don't exist yet. Subsequent applies work without this workaround.
 
 ``` bash
 $ ./terraform.sh init
@@ -32,9 +34,13 @@ Initializing the backend...
 [...]
 Terraform has been successfully initialized!
 
+$ ./terraform.sh apply -target=datadog_synthetics_private_location.local
+[...]
+Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+
 $ ./terraform.sh apply
 [...]
-Apply complete! Resources: 8 added, 0 changed, 0 destroyed.
+Apply complete! Resources: 7 added, 0 changed, 0 destroyed.
 ```
 
 5. Run `docker compose up` from a terminal at the root of the `llm-2000` folder:

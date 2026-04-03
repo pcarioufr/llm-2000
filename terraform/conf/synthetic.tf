@@ -32,8 +32,8 @@ resource "datadog_synthetics_test" "api_test" {
     target   = 15000
   }
 
-  locations = ["${datadog_synthetics_private_location.local.id}"]
-  
+  locations = [datadog_synthetics_private_location.local.id]
+
   options_list {
     tick_every = 300  # Run every 5 minutes
     retry {
@@ -56,7 +56,7 @@ resource "datadog_synthetics_test" "browser_test_new_user_chat" {
   message = "Browser test for new user chat flow failed. Notify: ${var.notif_email}"
 
   device_ids = ["firefox.tablet", "chrome.laptop_large"]
-  locations  = ["${datadog_synthetics_private_location.local.id}"]
+  locations  = [datadog_synthetics_private_location.local.id]
 
   request_definition {
     method = "GET"
