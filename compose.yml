@@ -19,7 +19,7 @@ services:
       com.datadoghq.ad.instances: '[{"nginx_status_url": "http://nginx:81/nginx_status/"}]'
       com.datadoghq.ad.logs: '[{"source": "nginx", "service": "nginx"}]'
     environment:
-      - DD_SERVICE="nginx"
+      - DD_SERVICE=nginx
       - DD_AGENT_HOST=datadog
 
   flask:
@@ -39,6 +39,7 @@ services:
       - DD_LOGS_INJECTION=true
       - DD_TRACE_ANALYTICS_ENABLED=true
       - DD_LLMOBS_ENABLED=1
+      - DD_LLMOBS_AGENTLESS_ENABLED=false
       - DD_LLMOBS_ML_APP=ollama
       - DD_AGENT_HOST=datadog
       - DD_TRACE_AGENT_PORT=8126

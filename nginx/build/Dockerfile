@@ -1,13 +1,13 @@
-FROM nginx:1.27.0
+FROM nginx:1.29.7
 
-# Update packages to download Datadog NGINX Module 
-RUN apt-get update 
+# Update packages to download Datadog NGINX Module
+RUN apt-get update
 RUN apt-get install -y wget tar curl jq
 
 # Download Datadog NGINX Module
-COPY datadog-module.sh datadog-module.sh 
+COPY datadog-module.sh datadog-module.sh
 RUN chmod +x datadog-module.sh
-RUN ./datadog-module.sh 1.27.0 
+RUN ./datadog-module.sh 1.29.7 v1.14.0
 
 # Certificates to use NGINX as a Datadog Proxy
 # https://docs.datadoghq.com/agent/configuration/proxy/?tab=linux#nginx
