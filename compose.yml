@@ -26,7 +26,8 @@ services:
     container_name: flask
     build: flask/build/.
     env_file:
-      - .env/rum.env
+      - path: .env/rum.env
+        required: false
       - .env/ollama.env
     volumes:
       - ./flask:/flask
@@ -111,7 +112,8 @@ services:
     image: datadog/observability-pipelines-worker:latest
     env_file:
       - .env/datadog.env
-      - .env/datadog-op-worker.env
+      - path: .env/datadog-op-worker.env
+        required: false
     environment:
       - DD_OP_SOURCE_DATADOG_AGENT_ADDRESS=0.0.0.0:8282
     expose:
@@ -127,7 +129,8 @@ services:
     image: "datadog/synthetics-private-location-worker"
     platform: linux/amd64 # no docker image for arm64 yet
     env_file:
-      - .env/datadog-synthetics-worker.env
+      - path: .env/datadog-synthetics-worker.env
+        required: false
       - .env/datadog.env
     labels:
       com.datadoghq.ad.logs: '[{"source": "datadog-synthetics-worker", "service": "datadog-synthetics-worker"}]'

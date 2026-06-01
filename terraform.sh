@@ -107,6 +107,8 @@ case "$COMMAND" in
         ;;
     "apply")
         generate_tfvars
+        # First pass: create the private location so its ID is known before synthetics tests are validated
+        run_terraform apply -auto-approve -target=datadog_synthetics_private_location.local "$@"
         run_terraform apply -auto-approve "$@"
         generate_env_files
         ;;
